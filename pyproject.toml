@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=30.3.0", "wheel"]
+
+[tool.pipub.setup.metadata]
+name = "PiPuB"
+description = "One single source of truth for your package."
+url = "https://github.com/uranusjr/pipub"
+author = "Tzu-ping Chung"
+author_email = "uranusjr@gmail.com"
+long_description = { file = "README.rst" }
+license = "ISC License"
+keywords = ["setup.py", "pyproject.toml", "setuptools", "pypi"]
+classifier = [
+    "Development Status :: 1 - Planning",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: ISC License (ISCL)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[tool.pipub.setup.options]
+zip_safe = false
+
+[tool.pipub.setup.bdist_wheel]
+universal = 1

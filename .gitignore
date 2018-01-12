@@ -1,0 +1,8 @@
+__pycache__
+*.py[co]
+
+# Will be generated at package time.
+/setup.cfg
+
+# Packaging things.
+/*.egg-info
