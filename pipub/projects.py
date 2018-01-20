@@ -8,6 +8,8 @@ import warnings
 import pipfile
 import toml
 
+from . import pep508
+
 
 def convert(value):
     """Convert a TOML value to INI.
@@ -22,11 +24,14 @@ def convert(value):
             return '\n' + s
         return s
     if isinstance(value, collections.abc.Mapping):
-        s = '\n'.join(f'{key}: {convert(val)}' for key, val in value.items())
+        s = '\n'.join(
+            '{}: {}'.format(key, convert(val))
+            for key, val in value.items()
+        )
         if len(value) > 1:
             return '\n' + s
         return s
-    raise ValueError(f'can not handle {type(value)} instance')
+    raise ValueError('can not handle {!r} instance'.format(type(value)))
 
 
 def read_pyproject(parser, path):
@@ -34,7 +39,7 @@ def read_pyproject(parser, path):
         try:
             data = toml.load(f)['tool']['pipub']['setup']
         except KeyError as e:
-            warnings.warn(f'no section {e} in pyproject.toml')
+            warnings.warn('no section {} in pyproject.toml'.format(e))
             data = {}
     for name, group in data.items():
         if not parser.has_section(name):
@@ -44,24 +49,22 @@ def read_pyproject(parser, path):
 
 
 def iter_requirements(packages):
-    for name, pin in packages.items():
-        if pin == '*':
-            yield name
-        else:   # TODO: Actually support pin markers.
-            yield f'{name}{pin}'
+    for key, value in packages.items():
+        pep508.dump_requirement(key, value)
 
 
 def add_pipfile_entry(parser, section, key, value):
     if not parser.has_section(section):
         parser.add_section(section)
     if key in parser[section] and parser[section][key] != value:
-        warnings.warn(f'[{section}].{key} exists, not overwriting')
+        warnings.warn('[{}].{} exists, not overwriting'.format(section, key))
     parser[section][key] = value
 
 
 def read_pipfile(parser, path):
     with path.open() as f:
         data = toml.load(f)
+    # TODO: Support [[source]].
     add_pipfile_entry(
         parser, 'options', 'install_requires',
         convert(list(iter_requirements(data.get('packages', {})))),
@@ -73,6 +76,7 @@ def read_pipfile(parser, path):
     with contextlib.suppress(KeyError):
         python_version = convert(data['requires']['python_version'])
         add_pipfile_entry(parser, 'options', 'python_requires', python_version)
+        # TODO: Support [requires] python_full_version and platform?
 
 
 class Project:
@@ -90,7 +94,7 @@ class Project:
         try:
             read_pyproject(parser, self.root.joinpath('pyproject.toml'))
         except FileNotFoundError:
-            warnings.warn(f'pyproject.toml not found')
+            warnings.warn('pyproject.toml not found')
         try:
             read_pipfile(parser, self.root.joinpath('Pipfile'))
         except FileNotFoundError:

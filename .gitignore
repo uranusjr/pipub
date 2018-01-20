@@ -6,3 +6,6 @@ __pycache__
 
 # Packaging things.
 /*.egg-info
+
+# From Pytest.
+/.cache

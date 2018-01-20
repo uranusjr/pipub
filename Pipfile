@@ -14,7 +14,9 @@ toml = "*"
 
 [dev-packages]
 
-readme_renderer = "*"
+pytest = "*"
+pytest-pythonpath = "*"
+readme-renderer = "*"
 
 
 [requires]
